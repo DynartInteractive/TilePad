@@ -1,7 +1,7 @@
 import os
 
-from PyQt4.QtCore import QCoreApplication, Qt, QSettings
-from PyQt4.QtGui import QMainWindow, QIcon, QVBoxLayout, QWidget, QPixmap, QPainter, QImage, QColor, QFontMetrics, QFont, \
+from PySide.QtCore import QCoreApplication, Qt, QSettings, QByteArray
+from PySide.QtGui import QMainWindow, QIcon, QVBoxLayout, QWidget, QPixmap, QPainter, QImage, QColor, QFontMetrics, QFont, \
 	QPen, QSpinBox, QLabel, QSizePolicy, QHBoxLayout, QPushButton, QImageReader, QMessageBox, QFileDialog, QCheckBox
 
 from ColorEdit import ColorEdit
@@ -65,15 +65,15 @@ class MainWindow(QMainWindow):
 		self.pixmapWidget.setMinimumHeight(300)
 
 		# load settings
-		self.tileWidthSpinBox.setValue(self.settings.value('tileWidth', 16).toInt()[0])
-		self.tileHeightSpinBox.setValue(self.settings.value('tileHeight', 16).toInt()[0])
-		self.paddingSpinBox.setValue(self.settings.value('padding', 1).toInt()[0])
-		self.forcePotCheckBox.setChecked(self.settings.value('forcePot', True).toBool())
-		self.reorderTilesCheckBox.setChecked(self.settings.value('reorderTiles', False).toBool())
-		self.transparentCheckbox.setChecked(self.settings.value('transparent', False).toBool())
-		self.backgroundColorEdit.setColorText(unicode(self.settings.value('backgroundColor', '#FF00FF').toString()))
-		self.restoreGeometry(self.settings.value('MainWindow/geometry').toByteArray());
-		self.restoreState(self.settings.value('MainWindow/windowState').toByteArray());
+		self.tileWidthSpinBox.setValue(self.settings.value('tileWidth', 16))
+		self.tileHeightSpinBox.setValue(self.settings.value('tileHeight', 16))
+		self.paddingSpinBox.setValue(self.settings.value('padding', 1))
+		self.forcePotCheckBox.setChecked(True if self.settings.value('forcePot', 'true') == 'true' else False)
+		self.reorderTilesCheckBox.setChecked(True if self.settings.value('reorderTiles', 'false') == 'true' else False)
+		self.transparentCheckbox.setChecked(True if self.settings.value('transparent', 'false') == 'true' else False)
+		self.backgroundColorEdit.setColorText(unicode(self.settings.value('backgroundColor', '#FF00FF')))
+		self.restoreGeometry(QByteArray(self.settings.value('MainWindow/geometry')))
+		self.restoreState(QByteArray(self.settings.value('MainWindow/windowState')))
 
 
 		# layout
@@ -202,7 +202,7 @@ class MainWindow(QMainWindow):
 				size *= 2
 
 		# create the target image
-		target = QImage(targetWidth, targetHeight, QImage.Format_ARGB32_Premultiplied)
+		target = QImage(targetWidth, targetHeight, QImage.Format_ARGB32)
 		if self.transparentCheckbox.isChecked():
 			target.fill(Qt.transparent)
 		else:

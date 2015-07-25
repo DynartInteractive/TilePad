@@ -1,8 +1,8 @@
 import os
 import sys
 
-from PyQt4.QtCore import QCoreApplication
-from PyQt4.QtGui import QApplication
+from PySide.QtCore import QCoreApplication
+from PySide.QtGui import QApplication
 
 from MainWindow import MainWindow
 
@@ -18,11 +18,12 @@ class TilePad(object):
 	def __init__(self):
 		QCoreApplication.setOrganizationName('DynArt')
 		QCoreApplication.setApplicationName('TilePad')
-		QCoreApplication.setApplicationVersion('0.3.0')
+		QCoreApplication.setApplicationVersion('0.3.1')
 		if getattr(sys, 'frozen', False):
 			self.dir = os.path.dirname(sys.executable)
 		else:
-			self.dir = os.path.dirname(__file__).replace('\\', '/')
+			self.dir = os.path.dirname(__file__)
+		self.dir = self.dir.replace('\\', '/')
 		self.qApp = QApplication(sys.argv)
 		self.mainWindow = MainWindow(self)
 

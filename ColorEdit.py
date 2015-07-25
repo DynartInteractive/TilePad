@@ -1,10 +1,10 @@
-from PyQt4.QtCore import Qt, pyqtSignal
-from PyQt4.QtGui import QWidget, QHBoxLayout, QLineEdit, QFrame, QLabel, QColor, QColorDialog
+from PySide.QtCore import Qt, Signal
+from PySide.QtGui import QWidget, QHBoxLayout, QLineEdit, QFrame, QLabel, QColor, QColorDialog
 
 
 class ColorEditBox(QFrame):
 
-	clicked = pyqtSignal()
+	clicked = Signal()
 
 	def __init__(self, parent=None):
 		super(ColorEditBox, self).__init__(parent)

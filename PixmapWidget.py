@@ -1,9 +1,9 @@
-from PyQt4.QtCore import QRect, pyqtSignal, Qt
-from PyQt4.QtGui import QWidget, QPainter, QBrush, QColor
+from PySide.QtCore import QRect, Signal, Qt
+from PySide.QtGui import QWidget, QPainter, QBrush, QColor
 
 class PixmapWidget(QWidget):
 
-	dropSignal = pyqtSignal(unicode)
+	dropSignal = Signal(unicode)
 
 	def __init__(self, parent=None):
 		super(PixmapWidget, self).__init__(parent)
