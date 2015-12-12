@@ -1,6 +1,6 @@
 import os
 
-from PySide.QtCore import QCoreApplication, Qt, QSettings, QByteArray
+from PySide.QtCore import QCoreApplication, Qt, QSettings, QByteArray, QFileSystemWatcher
 from PySide.QtGui import QMainWindow, QIcon, QVBoxLayout, QWidget, QPixmap, QPainter, QImage, QColor, QFontMetrics, QFont, \
 	QPen, QSpinBox, QLabel, QSizePolicy, QHBoxLayout, QPushButton, QImageReader, QMessageBox, QFileDialog, QCheckBox
 
@@ -22,6 +22,9 @@ class MainWindow(QMainWindow):
 		self.supportedFormats = []
 		for f in QImageReader.supportedImageFormats():
 			self.supportedFormats.append(unicode(f))
+
+		self.fileWatcher = QFileSystemWatcher()
+		self.fileWatcher.fileChanged.connect(self.fileChanged)
 
 		# widgets
 		self.showPixmapWidget = None
@@ -155,11 +158,18 @@ class MainWindow(QMainWindow):
 		if pixmap.isNull():
 			QMessageBox.warning(self, "Warning", "Can't load the image")
 			return
+		if self.path:
+			self.fileWatcher.removePath(self.path)
 		self.path = path
+		self.fileWatcher.addPath(self.path)
 		self.pixmapWidget.setPixmap(pixmap)
 		self.generateAndExportButton.setEnabled(True)
 		self.setTitle()
 		self.activateWindow()
+
+	def fileChanged(self, path):
+		#self.fileDropped(path)
+		pass
 
 	def transparentChanged(self):
 		e = self.transparentCheckbox.isChecked()
