@@ -1,9 +1,10 @@
-from PySide.QtCore import QRect, Signal, Qt
-from PySide.QtGui import QWidget, QPainter, QBrush, QColor
+from PySide2.QtCore import QRect, Signal, Qt
+from PySide2.QtGui import QPainter, QBrush, QColor
+from PySide2.QtWidgets import QWidget
 
 class PixmapWidget(QWidget):
 
-	dropSignal = Signal(unicode)
+	dropSignal = Signal(str)
 
 	def __init__(self, parent=None):
 		super(PixmapWidget, self).__init__(parent)
@@ -58,5 +59,5 @@ class PixmapWidget(QWidget):
 		for url in e.mimeData().urls():
 			if url.isLocalFile():
 				e.acceptProposedAction()
-				self.dropSignal.emit(unicode(url.toLocalFile()))
+				self.dropSignal.emit(str(url.toLocalFile()))
 				break

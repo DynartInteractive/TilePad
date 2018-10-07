@@ -1,3 +1,4 @@
 .idea/*
 tiled-0.7.2/*
 *.pyc
+build/*

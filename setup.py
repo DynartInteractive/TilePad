@@ -23,7 +23,7 @@ setup(name='TilePad',
 	  version='0.3.0',
 	  description='TilePad 0.3.0',
 	  options=options,
-	  executables=executables
+	  executables=executables, requires=['PySide2']
 	  )
 
 # copy resources

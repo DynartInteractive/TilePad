@@ -1,8 +1,11 @@
 import os
 import sys
+import ctypes
 
-from PySide.QtCore import QCoreApplication
-from PySide.QtGui import QApplication
+ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID('net.dynart.tilepad')
+
+from PySide2.QtCore import QCoreApplication
+from PySide2.QtWidgets import QApplication
 
 from MainWindow import MainWindow
 
@@ -31,5 +34,4 @@ class TilePad(object):
 		self.mainWindow.show()
 		return self.qApp.exec_()
 
-if __name__ == '__main__':
-	sys.exit(TilePad.Run())
+sys.exit(TilePad.Run())

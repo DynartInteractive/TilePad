@@ -1,5 +1,6 @@
-from PySide.QtCore import Qt, Signal
-from PySide.QtGui import QWidget, QHBoxLayout, QLineEdit, QFrame, QLabel, QColor, QColorDialog
+from PySide2.QtCore import Qt, Signal
+from PySide2.QtGui import QColor
+from PySide2.QtWidgets import QWidget, QHBoxLayout, QLineEdit, QFrame, QLabel, QColorDialog
 
 
 class ColorEditBox(QFrame):
@@ -62,7 +63,7 @@ class ColorEdit(QWidget):
 			self.setColorText(dialog.selectedColor().name())
 
 	def setColorText(self, text):
-		text = unicode(text).upper().replace('#', '')
+		text = str(text).upper().replace('#', '')
 		color = QColor('#' + text)
 		if not color.isValid():
 			return
