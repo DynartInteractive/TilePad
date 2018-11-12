@@ -7,7 +7,9 @@ Padding creator for Tiled tilesets. You can easily prevent the stripped tiles wi
 
 [Download the Win32 installer here](https://github.com/goph-R/TilePad/releases/download/release-0.4.0/tilepad-setup.exe)
 
-### Compile on Ubuntu (18.04) install qtcreator:
+### Compile on Ubuntu (18.04)
+
+Install qtcreator:
 
 ```
 sudo apt install build-essentials
