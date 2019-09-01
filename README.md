@@ -5,7 +5,7 @@ Padding creator for Tiled tilesets. You can easily prevent the stripped tiles wi
 
 ### Install on Windows:
 
-[Download the Win32 installer here](https://github.com/goph-R/TilePad/releases/download/release-0.4.0/tilepad-setup.exe)
+[Download the Win32 installer here](https://github.com/goph-R/TilePad/releases/download/0.4.2/tilepad-setup-0.4.2.exe)
 
 ### Compile on Ubuntu (18.04)
 
