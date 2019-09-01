@@ -38,3 +38,7 @@ Drop the tileset, you want to has padding, on the grey area. Set the export path
 Set the margin and spacing values in Tiled. The margin equals with the padding set in TilePad, spacing should be the doubled value of the margin.
 
 ![Screenshot](https://raw.githubusercontent.com/goph-R/TilePad/master/images/tiled_settings.png)
+
+### How to remove padding
+
+Check the "Remove padding" checkbox, drop the padded tileset image on the grey area. Set the export, and hit export.
