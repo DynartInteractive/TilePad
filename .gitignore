@@ -1,3 +1,8 @@
+setup.iss
+_package/*
+_source/*
+Output/*
+
 # python
 _python/.idea/*
 *.pyc

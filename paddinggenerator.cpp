@@ -130,6 +130,7 @@ void PaddingGenerator::drawEdges() {
     rows = targetHeight / gridHeight;
     int y;
     int x;
+
     for (int offset = 1; offset < padding + 1; offset++) {
         for (int j = 0; j < rows; j++) {
             y = j * gridHeight + padding;
@@ -142,6 +143,7 @@ void PaddingGenerator::drawEdges() {
             }
         }
     }
+
     for (int offset = 1; offset < padding + 1; offset++) {
         for (int j = 0; j < cols; j++) {
             x = j * gridWidth + padding;
@@ -154,4 +156,5 @@ void PaddingGenerator::drawEdges() {
             }
         }
     }
+
 }

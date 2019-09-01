@@ -27,12 +27,14 @@ CONFIG += c++11
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
+    paddingremover.cpp \
     pixmapdropwidget.cpp \
     paddinggenerator.cpp \
     coloredit.cpp
 
 HEADERS += \
         mainwindow.h \
+    paddingremover.h \
     pixmapdropwidget.h \
     paddinggenerator.h \
     coloredit.h

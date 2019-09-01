@@ -10,6 +10,7 @@
 
 #include "pixmapdropwidget.h"
 #include "paddinggenerator.h"
+#include "paddingremover.h"
 #include "coloredit.h"
 
 class MainWindow : public QMainWindow
@@ -28,6 +29,7 @@ public slots:
     void browseButtonClicked();
     void transparentCheckBoxStateChanged(int state);
     void forcePotCheckBoxStateChanged(int state);
+    void removePaddingCheckBoxStateChanged(int state);
     void exportButtonClicked();
 
 private:
@@ -36,6 +38,7 @@ private:
     void hideMessage();
     void createLayout();
     void setUpGenerator();
+    void setUpRemover();
     QImage* createImageFromSource();
     void adjustUiAfterDrop(QString path, QPixmap* resultPixmap);
     void loadSettings();
@@ -47,6 +50,7 @@ private:
     QSpinBox* paddingSpinBox;
     QCheckBox* forcePotCheckBox;
     QCheckBox* reorderCheckBox;
+    QCheckBox* removePaddingCheckBox;
     QCheckBox* transparentCheckBox;
     ColorEdit* backgroundColorEdit;
     QTabWidget* tabWidget;
@@ -57,6 +61,7 @@ private:
     QPushButton* exportButton;
 
     PaddingGenerator paddingGenerator;
+    PaddingRemover paddingRemover;
 
 };
 

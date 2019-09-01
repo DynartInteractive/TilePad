@@ -15,6 +15,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     QCoreApplication::setApplicationName("TilePad");
     createLayout();
     loadSettings();
+    setWindowTitle("TilePad 0.4.2");
 }
 
 MainWindow::~MainWindow() {
@@ -45,6 +46,9 @@ void MainWindow::createLayout() {
     connect(forcePotCheckBox, SIGNAL(stateChanged(int)), this, SLOT(forcePotCheckBoxStateChanged(int)));
 
     reorderCheckBox = new QCheckBox("Reorder tiles");
+
+    removePaddingCheckBox = new QCheckBox("Remove padding");
+    connect(removePaddingCheckBox, SIGNAL(stateChanged(int)), this, SLOT(removePaddingCheckBoxStateChanged(int)));
 
     transparentCheckBox = new QCheckBox("Transparent");
     transparentCheckBox->setChecked(true);
@@ -95,6 +99,8 @@ void MainWindow::createLayout() {
     h->addWidget(forcePotCheckBox);
     h->addSpacing(15);
     h->addWidget(reorderCheckBox);
+    h->addSpacing(15);
+    h->addWidget(removePaddingCheckBox);
     h->addStretch();
 
     auto h2 = new QHBoxLayout();
@@ -137,6 +143,7 @@ void MainWindow::loadSettings() {
     paddingSpinBox->setValue(settings.value("padding").toInt());
     forcePotCheckBox->setChecked(settings.value("forcePot").toBool());
     reorderCheckBox->setChecked(settings.value("reorder").toBool());
+    removePaddingCheckBox->setChecked(settings.value("removePadding").toBool());
     transparentCheckBox->setChecked(settings.value("transparent").toBool());
     backgroundColorEdit->setColorText(settings.value("backgroundColor").toString());
     exportEdit->setText(settings.value("exportPath").toString());
@@ -153,6 +160,7 @@ void MainWindow::saveSettings() {
     settings.setValue("tileHeight", tileHeightSpinBox->value());
     settings.setValue("padding", paddingSpinBox->value());
     settings.setValue("forcePot", forcePotCheckBox->isChecked());
+    settings.setValue("removePadding", removePaddingCheckBox->isChecked());
     settings.setValue("reorder", reorderCheckBox->isChecked());
     settings.setValue("transparent", transparentCheckBox->isChecked());
     settings.setValue("backgroundColor", backgroundColorEdit->getColor().name());
@@ -182,9 +190,15 @@ void MainWindow::fileDropped(QString path) {
         showError("Couldn't load the image: " + path);
         return;
     }
-    setUpGenerator();
     QImage* image = createImageFromSource();
-    QImage* resultImage = paddingGenerator.create(image);
+    QImage* resultImage;
+    if (removePaddingCheckBox->isChecked()) {
+        setUpRemover();
+        resultImage = paddingRemover.create(image);
+    } else {
+        setUpGenerator();
+        resultImage = paddingGenerator.create(image);
+    }
     delete image;
     QPixmap* resultPixmap = new QPixmap(QPixmap::fromImage(*resultImage));
     adjustUiAfterDrop(path, resultPixmap);
@@ -198,6 +212,11 @@ void MainWindow::setUpGenerator() {
     paddingGenerator.setReorder(reorderCheckBox->isChecked());
     paddingGenerator.setTransparent(transparentCheckBox->isChecked());
     paddingGenerator.setBackgroundColor(backgroundColorEdit->getColor());
+}
+
+void MainWindow::setUpRemover() {
+    paddingRemover.setTileSize(tileWidthSpinBox->value(), tileHeightSpinBox->value());
+    paddingRemover.setPadding(paddingSpinBox->value());
 }
 
 QImage* MainWindow::createImageFromSource() {
@@ -244,6 +263,13 @@ void MainWindow::transparentCheckBoxStateChanged(int state) {
 
 void MainWindow::forcePotCheckBoxStateChanged(int state) {
     reorderCheckBox->setEnabled(state == Qt::Checked);
+}
+
+void MainWindow::removePaddingCheckBoxStateChanged(int state) {
+    reorderCheckBox->setEnabled(state == Qt::Unchecked && forcePotCheckBox->isChecked());
+    forcePotCheckBox->setEnabled(state == Qt::Unchecked);
+    transparentCheckBox->setEnabled(state == Qt::Unchecked);
+    backgroundColorEdit->setEnabled(state == Qt::Unchecked && !transparentCheckBox->isChecked());
 }
 
 void MainWindow::exportButtonClicked() {
