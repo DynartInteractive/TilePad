@@ -1,6 +1,13 @@
 # JetBrains IDE
 .idea/
 
+# Claude Code
+.claude/
+
+# Signing scripts (local)
+_sign.ps1
+_sign_installer.ps1
+
 _package/*
 _source/*
 Output/*

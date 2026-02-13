@@ -29,6 +29,11 @@ void PixmapDropWidget::setDarkMode(bool dark) {
     update();
 }
 
+void PixmapDropWidget::setReferenceSize(QSize size) {
+    m_referenceSize = size;
+    update();
+}
+
 void PixmapDropWidget::rebuildCheckerboard() {
     const int cellSize = 8;
     m_checkerboard = QPixmap(cellSize * 2, cellSize * 2);
@@ -60,11 +65,21 @@ void PixmapDropWidget::paintEvent(QPaintEvent* event) {
     }
 
     if (pixmap && !pixmap->isNull()) {
-        // Draw the image centered and scaled (maintaining aspect ratio)
-        QSize scaledSize = pixmap->size().scaled(size(), Qt::KeepAspectRatio);
-        int x = (width() - scaledSize.width()) / 2;
-        int y = (height() - scaledSize.height()) / 2;
-        p.drawPixmap(x, y, scaledSize.width(), scaledSize.height(), *pixmap);
+        if (m_referenceSize.isValid() && !m_referenceSize.isEmpty()) {
+            // Same scale for source and result, image center = widget center
+            QSize refFit = m_referenceSize.scaled(size(), Qt::KeepAspectRatio);
+            double scale = (double)refFit.width() / (double)m_referenceSize.width();
+            int drawW = (int)(pixmap->width() * scale);
+            int drawH = (int)(pixmap->height() * scale);
+            int x = (width() - drawW) / 2;
+            int y = (height() - drawH) / 2;
+            p.drawPixmap(x, y, drawW, drawH, *pixmap);
+        } else {
+            QSize scaledSize = pixmap->size().scaled(size(), Qt::KeepAspectRatio);
+            int x = (width() - scaledSize.width()) / 2;
+            int y = (height() - scaledSize.height()) / 2;
+            p.drawPixmap(x, y, scaledSize.width(), scaledSize.height(), *pixmap);
+        }
     } else {
         // Draw drop zone indicator
         QColor borderColor = m_darkMode ? QColor("#666666") : QColor("#aaaaaa");
@@ -117,11 +132,15 @@ void PixmapDropWidget::dropEvent(QDropEvent* event) {
     m_dragHover = false;
     update();
     auto urls = event->mimeData()->urls();
+    QStringList paths;
     for (const QUrl& url : urls) {
         if (url.isLocalFile()) {
-            event->acceptProposedAction();
-            emit dropSignal(url.toLocalFile());
+            paths.append(url.toLocalFile());
         }
+    }
+    if (!paths.isEmpty()) {
+        event->acceptProposedAction();
+        emit filesDropped(paths);
     }
 }
 

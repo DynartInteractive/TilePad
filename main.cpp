@@ -1,5 +1,7 @@
 #include "mainwindow.h"
 #include "thememanager.h"
+#include "startupdialog.h"
+#include "project.h"
 #include "paddinggenerator.h"
 #include "paddingremover.h"
 
@@ -116,16 +118,40 @@ int main(int argc, char *argv[]) {
     if (hasCliArgs) {
         QGuiApplication app(argc, argv);
         app.setApplicationName("TilePad");
-        app.setApplicationVersion("0.5.1");
+        app.setApplicationVersion("0.6.0");
         return runCli(app);
     }
 
     QApplication a(argc, argv);
+    a.setApplicationName("TilePad");
+    a.setOrganizationName("Dynart");
 
     ThemeManager themeManager(&a);
     themeManager.applyTheme();
 
-    MainWindow w(&themeManager);
+    // Show startup dialog
+    StartupDialog startupDialog;
+    if (startupDialog.exec() != QDialog::Accepted) {
+        return 0;
+    }
+
+    // Create project based on dialog result
+    Project* project = new Project();
+
+    switch (startupDialog.selectedAction()) {
+    case StartupDialog::Action::OpenProject:
+    case StartupDialog::Action::OpenRecent:
+        if (!project->load(startupDialog.selectedPath())) {
+            // Fall through to new project if load fails
+            project->clear();
+        }
+        break;
+    case StartupDialog::Action::NewProject:
+    default:
+        break;
+    }
+
+    MainWindow w(&themeManager, project);
     w.show();
     return a.exec();
 }

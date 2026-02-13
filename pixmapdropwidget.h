@@ -19,6 +19,7 @@ public:
     QPixmap* getPixmap();
     void setPixmap(QPixmap* pixmap);
     void setDarkMode(bool dark);
+    void setReferenceSize(QSize size);
 
 protected:
     void paintEvent(QPaintEvent* event) override;
@@ -28,6 +29,7 @@ protected:
 
 signals:
     void dropSignal(QString path);
+    void filesDropped(QStringList paths);
 
 private:
     void rebuildCheckerboard();
@@ -36,6 +38,7 @@ private:
     bool m_dragHover = false;
     bool m_darkMode = true;
     QPixmap m_checkerboard;
+    QSize m_referenceSize;
 };
 
 #endif // PIXMAPWIDGET_H

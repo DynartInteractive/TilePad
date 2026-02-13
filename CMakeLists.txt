@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(TilePad VERSION 0.5.1 LANGUAGES CXX)
+project(TilePad VERSION 0.6.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -19,6 +19,8 @@ qt_add_executable(TilePad
     coloredit.h coloredit.cpp
     thememanager.h thememanager.cpp
     titlebar.h titlebar.cpp
+    project.h project.cpp
+    startupdialog.h startupdialog.cpp
     resources.qrc
 )
 

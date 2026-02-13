@@ -2,7 +2,7 @@
 ; Supports code signing via SignTool
 
 #define MyAppName "TilePad"
-#define MyAppVersion "0.5.1"
+#define MyAppVersion "0.6.0"
 #define MyAppPublisher "Dynart"
 #define MyAppURL "https://github.com/goph-R/TilePad"
 #define MyAppExeName "TilePad.exe"
