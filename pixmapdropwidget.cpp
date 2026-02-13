@@ -3,11 +3,12 @@
 #include <QColor>
 #include <QPainter>
 #include <QMimeData>
+#include <QFont>
 
 PixmapDropWidget::PixmapDropWidget(QWidget *parent) : QWidget(parent) {
     setAcceptDrops(true);
     pixmap = new QPixmap();
-    bgBrush = QBrush(QColor("#444"));
+    rebuildCheckerboard();
 }
 
 PixmapDropWidget::~PixmapDropWidget() {
@@ -22,15 +23,75 @@ void PixmapDropWidget::setPixmap(QPixmap* value) {
     pixmap = value;
 }
 
-void PixmapDropWidget::paintEvent(QPaintEvent* event) {
-    QWidget::paintEvent(event);
-    QPainter p(this);
-    p.setPen(Qt::NoPen);
-    p.setBrush(bgBrush);
-    p.drawRect(rect());
-    if (!pixmap->isNull()) {
-        p.drawPixmap(QPoint(0, 0), *pixmap, pixmap->rect());
+void PixmapDropWidget::setDarkMode(bool dark) {
+    m_darkMode = dark;
+    rebuildCheckerboard();
+    update();
+}
+
+void PixmapDropWidget::rebuildCheckerboard() {
+    const int cellSize = 8;
+    m_checkerboard = QPixmap(cellSize * 2, cellSize * 2);
+    QPainter p(&m_checkerboard);
+    if (m_darkMode) {
+        p.fillRect(0, 0, cellSize, cellSize, QColor("#3a3a3a"));
+        p.fillRect(cellSize, 0, cellSize, cellSize, QColor("#2a2a2a"));
+        p.fillRect(0, cellSize, cellSize, cellSize, QColor("#2a2a2a"));
+        p.fillRect(cellSize, cellSize, cellSize, cellSize, QColor("#3a3a3a"));
+    } else {
+        p.fillRect(0, 0, cellSize, cellSize, QColor("#e0e0e0"));
+        p.fillRect(cellSize, 0, cellSize, cellSize, QColor("#cccccc"));
+        p.fillRect(0, cellSize, cellSize, cellSize, QColor("#cccccc"));
+        p.fillRect(cellSize, cellSize, cellSize, cellSize, QColor("#e0e0e0"));
     }
+    p.end();
+}
+
+void PixmapDropWidget::paintEvent(QPaintEvent* event) {
+    Q_UNUSED(event);
+    QPainter p(this);
+    p.setRenderHint(QPainter::SmoothPixmapTransform);
+
+    // Draw checkerboard background
+    if (!m_checkerboard.isNull()) {
+        p.drawTiledPixmap(rect(), m_checkerboard);
+    } else {
+        p.fillRect(rect(), QColor("#333333"));
+    }
+
+    if (pixmap && !pixmap->isNull()) {
+        // Draw the image centered and scaled (maintaining aspect ratio)
+        QSize scaledSize = pixmap->size().scaled(size(), Qt::KeepAspectRatio);
+        int x = (width() - scaledSize.width()) / 2;
+        int y = (height() - scaledSize.height()) / 2;
+        p.drawPixmap(x, y, scaledSize.width(), scaledSize.height(), *pixmap);
+    } else {
+        // Draw drop zone indicator
+        QColor borderColor = m_darkMode ? QColor("#666666") : QColor("#aaaaaa");
+        QPen dashPen(borderColor, 2, Qt::DashLine);
+        p.setPen(dashPen);
+        p.setBrush(Qt::NoBrush);
+        QRect inner = rect().adjusted(20, 20, -20, -20);
+        p.drawRoundedRect(inner, 8, 8);
+
+        // Draw "Drop an image here" text
+        QColor textColor = m_darkMode ? QColor("#888888") : QColor("#999999");
+        p.setPen(textColor);
+        QFont font = p.font();
+        font.setPointSize(14);
+        p.setFont(font);
+        p.drawText(inner, Qt::AlignCenter, "Drop an image here");
+    }
+
+    // Drag hover overlay
+    if (m_dragHover) {
+        p.fillRect(rect(), QColor(74, 144, 217, 40));
+        QPen hoverPen(QColor("#4a90d9"), 3, Qt::SolidLine);
+        p.setPen(hoverPen);
+        p.setBrush(Qt::NoBrush);
+        p.drawRect(rect().adjusted(1, 1, -1, -1));
+    }
+
     p.end();
 }
 
@@ -39,12 +100,22 @@ void PixmapDropWidget::dragEnterEvent(QDragEnterEvent* event) {
     if (urls.size()) {
         event->setDropAction(Qt::CopyAction);
         event->accept();
+        m_dragHover = true;
+        update();
     } else {
         event->ignore();
     }
 }
 
+void PixmapDropWidget::dragLeaveEvent(QDragLeaveEvent* event) {
+    m_dragHover = false;
+    update();
+    QWidget::dragLeaveEvent(event);
+}
+
 void PixmapDropWidget::dropEvent(QDropEvent* event) {
+    m_dragHover = false;
+    update();
     auto urls = event->mimeData()->urls();
     for (const QUrl& url : urls) {
         if (url.isLocalFile()) {

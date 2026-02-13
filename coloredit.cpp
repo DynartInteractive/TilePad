@@ -14,9 +14,10 @@ ColorEdit::ColorEdit(QWidget *parent) : QWidget(parent) {
     connect(edit, &QLineEdit::returnPressed, this, &ColorEdit::returnPressed);
 
     box = new QPushButton();
+    box->setObjectName("colorSwatch");
     box->setFlat(true);
-    box->setFixedSize(18, 18);
-    box->setStyleSheet("background-color: #FF00FF; border: 1px solid black;");
+    box->setFixedSize(22, 22);
+    box->setStyleSheet("background-color: #FF00FF;");
     box->setCursor(Qt::PointingHandCursor);
     connect(box, &QPushButton::clicked, this, &ColorEdit::boxClicked);
 
@@ -54,7 +55,7 @@ void ColorEdit::setColorText(QString value) {
     if (!newColor.isValid()) {
         return;
     }
-    box->setStyleSheet("background-color: #" + text + "; border: 1px solid black;");
+    box->setStyleSheet("background-color: #" + text + ";");
     edit->setText(text);
     color = newColor;
 }

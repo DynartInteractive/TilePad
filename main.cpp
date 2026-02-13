@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "thememanager.h"
 #include "paddinggenerator.h"
 #include "paddingremover.h"
 
@@ -115,12 +116,16 @@ int main(int argc, char *argv[]) {
     if (hasCliArgs) {
         QGuiApplication app(argc, argv);
         app.setApplicationName("TilePad");
-        app.setApplicationVersion("0.5.0");
+        app.setApplicationVersion("0.5.1");
         return runCli(app);
     }
 
     QApplication a(argc, argv);
-    MainWindow w;
+
+    ThemeManager themeManager(&a);
+    themeManager.applyTheme();
+
+    MainWindow w(&themeManager);
     w.show();
     return a.exec();
 }
