@@ -2,6 +2,7 @@
 
 - Migrated from Qt5 to Qt6
 - Replaced qmake build system with CMake
+- Added CLI mode for headless/scripted usage
 - Added Reprocess button to re-apply padding with changed settings
 - Added Watch file option to auto-reprocess when source file changes on disk
 - New Inno Setup installer script with code signing support

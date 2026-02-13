@@ -47,6 +47,22 @@ After dropping a tileset, you can change any settings and click the **Reprocess*
 
 Check the **Watch file** checkbox to automatically reprocess the tileset whenever the source image file changes on disk. This is useful when editing the tileset in an external image editor and wanting TilePad to update the result in real time.
 
+### CLI usage
+
+TilePad can be used from the command line without the GUI. If any flags are passed, it runs in headless mode:
+
+```
+TilePad --input tileset.png --output padded.png --tile-width 16 --tile-height 16 --padding 2 --force-pot --transparent
+```
+
+To remove padding:
+
+```
+TilePad --input padded.png --output original.png --tile-width 16 --tile-height 16 --padding 2 --remove
+```
+
+Run `TilePad --help` for a full list of options.
+
 ### How to remove padding
 
 Check the "Remove padding" checkbox, drop the padded tileset image on the grey area. Set the export path and hit export.
