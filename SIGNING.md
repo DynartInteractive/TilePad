@@ -13,8 +13,8 @@
 
 ### Certificate Profiles
 
-- **dynart-private** — PrivateTrust (for testing, not trusted by Windows publicly)
-- **dynart-public** — PublicTrust (create once Public identity validation is approved)
+- **dynart-public** — PublicTrust (production, trusted by Windows) — Identity validation: `aa41670d-630b-4f5b-a75f-3baf302ee867`
+- **dynart-private** — PrivateTrust (testing only, not publicly trusted) — Identity validation: `0b910742-720d-4f86-a54c-d0b725f120f2`
 
 ### Roles Assigned
 
@@ -67,7 +67,7 @@ $metadata = "C:\Users\stan_\AppData\Local\TrustedSigning\Microsoft.Trusted.Signi
 {
   "Endpoint": "https://weu.codesigning.azure.net/",
   "CodeSigningAccountName": "dynart-signing",
-  "CertificateProfileName": "dynart-private",
+  "CertificateProfileName": "dynart-public",
   "ExcludeCredentials": [
     "ManagedIdentityCredential",
     "SharedTokenCacheCredential",
@@ -80,28 +80,7 @@ $metadata = "C:\Users\stan_\AppData\Local\TrustedSigning\Microsoft.Trusted.Signi
 }
 ```
 
----
-
-## Once Public Identity Validation is Completed
-
-### Create Public Trust Certificate Profile
-
-1. Get the identity validation ID from Azure Portal > dynart-signing > Identity validations
-2. Run:
-
-```powershell
-& "C:\Program Files\Microsoft SDKs\Azure\CLI2\wbin\az.cmd" trustedsigning certificate-profile create `
-  --resource-group TilePad-Signing `
-  --account-name dynart-signing `
-  --profile-name dynart-public `
-  --profile-type PublicTrust `
-  --identity-validation-id "<YOUR_PUBLIC_IDENTITY_VALIDATION_ID>" `
-  --include-street-address false `
-  --include-postal-code false `
-  -o table
-```
-
-3. Update metadata.json: change `CertificateProfileName` from `dynart-private` to `dynart-public`
+To use the private (test) profile instead, change `CertificateProfileName` to `dynart-private`.
 
 ---
 
@@ -141,8 +120,8 @@ cd C:\Projects\TilePad
 & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" setup.iss
 
 # 6. Sign installer
-& $signtool sign /v /fd SHA256 /tr "http://timestamp.acs.microsoft.com" /td SHA256 /dlib $dlib /dmdf $metadata Output\\tilepad-setup-0.5.0.exe
+& $signtool sign /v /fd SHA256 /tr "http://timestamp.acs.microsoft.com" /td SHA256 /dlib $dlib /dmdf $metadata Output\\tilepad-setup-<VERSION>.exe
 
 # 7. Upload to GitHub release
-gh release upload v0.5.0 Output\\tilepad-setup-0.5.0.exe --clobber
+gh release upload v<VERSION> Output\\tilepad-setup-<VERSION>.exe --clobber
 ```
