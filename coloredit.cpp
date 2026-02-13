@@ -5,7 +5,7 @@
 #include <QColorDialog>
 
 ColorEdit::ColorEdit(QWidget *parent) : QWidget(parent) {
-    color.setNamedColor("#FF00FF");
+    color = QColor::fromString("#FF00FF");
 
     edit = new QLineEdit();
     edit->setText("FF00FF");
@@ -50,7 +50,7 @@ void ColorEdit::returnPressed() {
 void ColorEdit::setColorText(QString value) {
     QString text = value.toUpper().replace('#', "");
     QColor newColor;
-    newColor.setNamedColor("#" + text);
+    newColor = QColor::fromString("#" + text);
     if (!newColor.isValid()) {
         return;
     }

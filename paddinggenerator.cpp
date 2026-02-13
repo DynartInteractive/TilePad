@@ -16,7 +16,7 @@ PaddingGenerator::PaddingGenerator() {
     gridHeight = 0;
     targetWidth = 0;
     targetHeight = 0;
-    backgroundColor = QColor("FF00FF");
+    backgroundColor = QColor::fromString("#FF00FF");
 }
 
 PaddingGenerator::~PaddingGenerator() {

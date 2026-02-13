@@ -78,7 +78,7 @@ int runCli(QGuiApplication& app) {
         generator.setReorder(reorder);
         generator.setTransparent(transparent);
         QColor bgColor;
-        bgColor.setNamedColor("#" + parser.value(bgColorOption));
+        bgColor = QColor::fromString("#" + parser.value(bgColorOption));
         generator.setBackgroundColor(bgColor);
         resultImage = generator.create(&sourceImage);
     }
