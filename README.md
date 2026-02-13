@@ -5,7 +5,7 @@ Padding creator for Tiled tilesets. You can easily prevent the stripped tiles wi
 
 ### Install on Windows
 
-[Download the Win64 installer here](https://github.com/goph-R/TilePad/releases/download/0.6.0/tilepad-setup-0.6.0.exe)
+[Download the Win64 installer here](https://github.com/DynartInteractive/TilePad/releases/download/0.6.0/tilepad-setup-0.6.0.exe)
 
 ### Build from source
 
@@ -33,17 +33,17 @@ sudo apt install qt6-base-dev cmake build-essential
 
 When you launch TilePad, a startup dialog lets you create a new project or open an existing one. Recent projects are listed for quick access.
 
-![Startup](https://raw.githubusercontent.com/goph-R/TilePad/master/images/startup.png)
+![Startup](https://raw.githubusercontent.com/DynartInteractive/TilePad/master/images/startup.png)
 
 ### How to use
 
 Drop tilesets onto the preview area or use **File > Import** to add files. Each file gets its own tab. Set the tile settings, then click **Reprocess** to generate the padded result. Set the export path and hit **Export**.
 
-![Screenshot](https://raw.githubusercontent.com/goph-R/TilePad/master/images/screenshot_dark.png)
+![Screenshot](https://raw.githubusercontent.com/DynartInteractive/TilePad/master/images/screenshot_dark.png)
 
 Set the margin and spacing values in Tiled. The margin equals the padding set in TilePad, spacing should be the doubled value of the margin.
 
-![Screenshot](https://raw.githubusercontent.com/goph-R/TilePad/master/images/tiled_settings.png)
+![Screenshot](https://raw.githubusercontent.com/DynartInteractive/TilePad/master/images/tiled_settings.png)
 
 ### Project system
 
@@ -80,7 +80,7 @@ Check the **Watch file** checkbox to automatically reprocess the tileset wheneve
 
 TilePad supports dark, light, and system-following themes. Change the theme from **View > Theme**.
 
-![Light theme](https://raw.githubusercontent.com/goph-R/TilePad/master/images/screenshot_light.png)
+![Light theme](https://raw.githubusercontent.com/DynartInteractive/TilePad/master/images/screenshot_light.png)
 
 ### How to remove padding
 
