@@ -7,6 +7,7 @@
 #include <QLabel>
 #include <QTabWidget>
 #include <QPushButton>
+#include <QFileSystemWatcher>
 
 #include "pixmapdropwidget.h"
 #include "paddinggenerator.h"
@@ -26,11 +27,14 @@ public:
 
 public slots:
     void fileDropped(QString path);
+    void reprocess();
     void browseButtonClicked();
-    void transparentCheckBoxStateChanged(int state);
-    void forcePotCheckBoxStateChanged(int state);
-    void removePaddingCheckBoxStateChanged(int state);
+    void transparentCheckBoxStateChanged(Qt::CheckState state);
+    void forcePotCheckBoxStateChanged(Qt::CheckState state);
+    void removePaddingCheckBoxStateChanged(Qt::CheckState state);
     void exportButtonClicked();
+    void watchFileCheckBoxStateChanged(Qt::CheckState state);
+    void sourceFileChanged(const QString& path);
 
 private:
     void showError(QString text);
@@ -40,7 +44,7 @@ private:
     void setUpGenerator();
     void setUpRemover();
     QImage* createImageFromSource();
-    void adjustUiAfterDrop(QString path, QPixmap* resultPixmap);
+    void adjustUiAfterDrop(QString path);
     void loadSettings();
     void saveSettings();
 
@@ -57,8 +61,13 @@ private:
     PixmapDropWidget* sourcePixmapDropWidget;
     PixmapDropWidget* resultPixmapDropWidget;
     QLineEdit* exportEdit;
+    QCheckBox* watchFileCheckBox;
+    QPushButton* reprocessButton;
     QPushButton* browseButton;
     QPushButton* exportButton;
+
+    QString currentSourcePath;
+    QFileSystemWatcher* fileWatcher;
 
     PaddingGenerator paddingGenerator;
     PaddingRemover paddingRemover;

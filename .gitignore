@@ -1,7 +1,6 @@
 # JetBrains IDE
 .idea/
 
-setup.iss
 _package/*
 _source/*
 Output/*
@@ -54,5 +53,13 @@ target_wrapper.*
 # QtCreator CMake
 CMakeLists.txt.user*
 
+# CMake build
+build/
+cmake-build-*/
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+
 # Binary
 TilePad
+TilePad.exe

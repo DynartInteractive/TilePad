@@ -13,9 +13,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     QCoreApplication::setOrganizationName("Dynart");
     QCoreApplication::setOrganizationDomain("dynart.net");
     QCoreApplication::setApplicationName("TilePad");
+    fileWatcher = new QFileSystemWatcher(this);
+    connect(fileWatcher, &QFileSystemWatcher::fileChanged, this, &MainWindow::sourceFileChanged);
     createLayout();
     loadSettings();
-    setWindowTitle("TilePad 0.4.2");
+    setWindowTitle("TilePad 0.5.0");
 }
 
 MainWindow::~MainWindow() {
@@ -43,16 +45,19 @@ void MainWindow::createLayout() {
 
     forcePotCheckBox = new QCheckBox("Force PoT");
     forcePotCheckBox->setChecked(true);
-    connect(forcePotCheckBox, SIGNAL(stateChanged(int)), this, SLOT(forcePotCheckBoxStateChanged(int)));
+    connect(forcePotCheckBox, &QCheckBox::checkStateChanged, this, &MainWindow::forcePotCheckBoxStateChanged);
 
     reorderCheckBox = new QCheckBox("Reorder tiles");
 
     removePaddingCheckBox = new QCheckBox("Remove padding");
-    connect(removePaddingCheckBox, SIGNAL(stateChanged(int)), this, SLOT(removePaddingCheckBoxStateChanged(int)));
+    connect(removePaddingCheckBox, &QCheckBox::checkStateChanged, this, &MainWindow::removePaddingCheckBoxStateChanged);
 
     transparentCheckBox = new QCheckBox("Transparent");
     transparentCheckBox->setChecked(true);
-    connect(transparentCheckBox, SIGNAL(stateChanged(int)), this, SLOT(transparentCheckBoxStateChanged(int)));
+    connect(transparentCheckBox, &QCheckBox::checkStateChanged, this, &MainWindow::transparentCheckBoxStateChanged);
+
+    watchFileCheckBox = new QCheckBox("Watch file");
+    connect(watchFileCheckBox, &QCheckBox::checkStateChanged, this, &MainWindow::watchFileCheckBoxStateChanged);
 
     backgroundColorEdit = new ColorEdit();
     backgroundColorEdit->setEnabled(false);
@@ -60,12 +65,12 @@ void MainWindow::createLayout() {
     sourcePixmapDropWidget = new PixmapDropWidget();
     sourcePixmapDropWidget->setMinimumHeight(300);
     sourcePixmapDropWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    connect(sourcePixmapDropWidget, SIGNAL(dropSignal(QString)), this, SLOT(fileDropped(QString)));
+    connect(sourcePixmapDropWidget, &PixmapDropWidget::dropSignal, this, &MainWindow::fileDropped);
 
     resultPixmapDropWidget = new PixmapDropWidget();
     resultPixmapDropWidget->setMinimumHeight(300);
     resultPixmapDropWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    connect(resultPixmapDropWidget, SIGNAL(dropSignal(QString)), this, SLOT(fileDropped(QString)));
+    connect(resultPixmapDropWidget, &PixmapDropWidget::dropSignal, this, &MainWindow::fileDropped);
 
     tabWidget = new QTabWidget();
     tabWidget->addTab(sourcePixmapDropWidget, "Source");
@@ -75,11 +80,15 @@ void MainWindow::createLayout() {
     exportEdit = new QLineEdit();
 
     browseButton = new QPushButton("Browse ...");
-    connect(browseButton, SIGNAL(clicked()), this, SLOT(browseButtonClicked()));
+    connect(browseButton, &QPushButton::clicked, this, &MainWindow::browseButtonClicked);
+
+    reprocessButton = new QPushButton("Reprocess");
+    reprocessButton->setEnabled(false);
+    connect(reprocessButton, &QPushButton::clicked, this, &MainWindow::reprocess);
 
     exportButton = new QPushButton("Export");
     exportButton->setEnabled(false);
-    connect(exportButton, SIGNAL(clicked()), this, SLOT(exportButtonClicked()));
+    connect(exportButton, &QPushButton::clicked, this, &MainWindow::exportButtonClicked);
 
     auto h = new QHBoxLayout();
     h->setContentsMargins(5, 5, 5, 5);
@@ -111,6 +120,8 @@ void MainWindow::createLayout() {
     h2->addWidget(new QLabel("Background color:"));
     h2->addSpacing(5);
     h2->addWidget(backgroundColorEdit);
+    h2->addSpacing(15);
+    h2->addWidget(watchFileCheckBox);
     h2->addStretch();
 
     auto h3 = new QHBoxLayout();
@@ -118,6 +129,8 @@ void MainWindow::createLayout() {
     h3->addWidget(exportEdit);
     h3->addSpacing(5);
     h3->addWidget(browseButton);
+    h3->addSpacing(5);
+    h3->addWidget(reprocessButton);
     h3->addSpacing(5);
     h3->addWidget(exportButton);
 
@@ -145,6 +158,7 @@ void MainWindow::loadSettings() {
     reorderCheckBox->setChecked(settings.value("reorder").toBool());
     removePaddingCheckBox->setChecked(settings.value("removePadding").toBool());
     transparentCheckBox->setChecked(settings.value("transparent").toBool());
+    watchFileCheckBox->setChecked(settings.value("watchFile").toBool());
     backgroundColorEdit->setColorText(settings.value("backgroundColor").toString());
     exportEdit->setText(settings.value("exportPath").toString());
 }
@@ -163,6 +177,7 @@ void MainWindow::saveSettings() {
     settings.setValue("removePadding", removePaddingCheckBox->isChecked());
     settings.setValue("reorder", reorderCheckBox->isChecked());
     settings.setValue("transparent", transparentCheckBox->isChecked());
+    settings.setValue("watchFile", watchFileCheckBox->isChecked());
     settings.setValue("backgroundColor", backgroundColorEdit->getColor().name());
     settings.setValue("exportPath", exportEdit->text());
 }
@@ -184,12 +199,28 @@ void MainWindow::hideMessage() {
 }
 
 void MainWindow::fileDropped(QString path) {
-    // error handling
     hideMessage();
     if (!sourcePixmapDropWidget->load(path)) {
         showError("Couldn't load the image: " + path);
         return;
     }
+    if (!currentSourcePath.isEmpty()) {
+        fileWatcher->removePath(currentSourcePath);
+    }
+    currentSourcePath = path;
+    if (watchFileCheckBox->isChecked()) {
+        fileWatcher->addPath(currentSourcePath);
+    }
+    reprocessButton->setEnabled(true);
+    reprocess();
+    adjustUiAfterDrop(path);
+}
+
+void MainWindow::reprocess() {
+    if (currentSourcePath.isEmpty()) {
+        return;
+    }
+    hideMessage();
     QImage* image = createImageFromSource();
     QImage* resultImage;
     if (removePaddingCheckBox->isChecked()) {
@@ -201,8 +232,10 @@ void MainWindow::fileDropped(QString path) {
     }
     delete image;
     QPixmap* resultPixmap = new QPixmap(QPixmap::fromImage(*resultImage));
-    adjustUiAfterDrop(path, resultPixmap);
-    //delete resultImage;
+    resultPixmapDropWidget->setPixmap(resultPixmap);
+    tabWidget->setCurrentIndex(1);
+    update();
+    showInfo("Reprocessing complete.");
 }
 
 void MainWindow::setUpGenerator() {
@@ -230,9 +263,7 @@ QImage* MainWindow::createImageFromSource() {
     return image;
 }
 
-void MainWindow::adjustUiAfterDrop(QString path, QPixmap* resultPixmap) {
-    resultPixmapDropWidget->setPixmap(resultPixmap);
-    tabWidget->setCurrentIndex(1);
+void MainWindow::adjustUiAfterDrop(QString path) {
     if (exportEdit->text().isEmpty()) {
         QFileInfo fileInfo(path);
         auto dir = fileInfo.absoluteDir().path();
@@ -241,7 +272,6 @@ void MainWindow::adjustUiAfterDrop(QString path, QPixmap* resultPixmap) {
         exportEdit->setText(dir + "/" + baseName + ".export." + suffix);
     }
     exportButton->setEnabled(true);
-    update();
 }
 
 void MainWindow::browseButtonClicked() {
@@ -257,19 +287,42 @@ void MainWindow::browseButtonClicked() {
     }
 }
 
-void MainWindow::transparentCheckBoxStateChanged(int state) {
+void MainWindow::transparentCheckBoxStateChanged(Qt::CheckState state) {
     backgroundColorEdit->setEnabled(state == Qt::Unchecked);
 }
 
-void MainWindow::forcePotCheckBoxStateChanged(int state) {
+void MainWindow::forcePotCheckBoxStateChanged(Qt::CheckState state) {
     reorderCheckBox->setEnabled(state == Qt::Checked);
 }
 
-void MainWindow::removePaddingCheckBoxStateChanged(int state) {
+void MainWindow::removePaddingCheckBoxStateChanged(Qt::CheckState state) {
     reorderCheckBox->setEnabled(state == Qt::Unchecked && forcePotCheckBox->isChecked());
     forcePotCheckBox->setEnabled(state == Qt::Unchecked);
     transparentCheckBox->setEnabled(state == Qt::Unchecked);
     backgroundColorEdit->setEnabled(state == Qt::Unchecked && !transparentCheckBox->isChecked());
+}
+
+void MainWindow::watchFileCheckBoxStateChanged(Qt::CheckState state) {
+    if (currentSourcePath.isEmpty()) {
+        return;
+    }
+    if (state == Qt::Checked) {
+        fileWatcher->addPath(currentSourcePath);
+    } else {
+        fileWatcher->removePath(currentSourcePath);
+    }
+}
+
+void MainWindow::sourceFileChanged(const QString& path) {
+    if (path != currentSourcePath || !watchFileCheckBox->isChecked()) {
+        return;
+    }
+    if (!sourcePixmapDropWidget->load(currentSourcePath)) {
+        return;
+    }
+    // Re-add the path since some systems remove it after a change
+    fileWatcher->addPath(currentSourcePath);
+    reprocess();
 }
 
 void MainWindow::exportButtonClicked() {

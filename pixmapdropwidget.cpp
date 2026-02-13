@@ -46,7 +46,7 @@ void PixmapDropWidget::dragEnterEvent(QDragEnterEvent* event) {
 
 void PixmapDropWidget::dropEvent(QDropEvent* event) {
     auto urls = event->mimeData()->urls();
-    foreach (QUrl url, urls) {
+    for (const QUrl& url : urls) {
         if (url.isLocalFile()) {
             event->acceptProposedAction();
             emit dropSignal(url.toLocalFile());

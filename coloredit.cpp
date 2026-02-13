@@ -10,15 +10,15 @@ ColorEdit::ColorEdit(QWidget *parent) : QWidget(parent) {
     edit = new QLineEdit();
     edit->setText("FF00FF");
     edit->setMaximumWidth(70);
-    connect(edit, SIGNAL(textChanged(QString)), this, SLOT(textChanged(QString)));
-    connect(edit, SIGNAL(returnPressed()), this, SLOT(returnPressed()));
+    connect(edit, &QLineEdit::textChanged, this, &ColorEdit::textChanged);
+    connect(edit, &QLineEdit::returnPressed, this, &ColorEdit::returnPressed);
 
     box = new QPushButton();
     box->setFlat(true);
     box->setFixedSize(18, 18);
     box->setStyleSheet("background-color: #FF00FF; border: 1px solid black;");
     box->setCursor(Qt::PointingHandCursor);
-    connect(box, SIGNAL(clicked()), this, SLOT(boxClicked()));
+    connect(box, &QPushButton::clicked, this, &ColorEdit::boxClicked);
 
     auto h = new QHBoxLayout();
     h->setContentsMargins(0, 0, 0, 0);
