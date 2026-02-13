@@ -34,7 +34,7 @@ Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern
 ArchitecturesAllowed=x64compatible
-ArchitecturesInstallMode=x64compatible
+ChangesEnvironment=yes
 #ifdef SignToolConfigured
 SignTool=signtool
 SignedUninstaller=yes
@@ -45,35 +45,44 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
+Name: "addtopath"; Description: "Add TilePad to PATH (for CLI usage)"; GroupDescription: "CLI Integration:"; Flags: unchecked
 
 [Files]
 ; Main executable
 Source: "_package\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
 
 ; Qt6 runtime DLLs
-Source: "_package\Qt6Core.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "_package\Qt6Gui.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "_package\Qt6Widgets.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "_package\*.dll"; DestDir: "{app}"; Flags: ignoreversion
 
-; Qt6 platform plugins
+; Qt6 plugins
 Source: "_package\platforms\*"; DestDir: "{app}\platforms"; Flags: ignoreversion recursesubdirs
-
-; Qt6 style plugins
-Source: "_package\styles\*"; DestDir: "{app}\styles"; Flags: ignoreversion recursesubdirs; Check: DirExists(ExpandConstant('{src}\_package\styles'))
-
-; Qt6 image format plugins
-Source: "_package\imageformats\*"; DestDir: "{app}\imageformats"; Flags: ignoreversion recursesubdirs; Check: DirExists(ExpandConstant('{src}\_package\imageformats'))
-
-; Visual C++ runtime (if not using static linking)
-Source: "_package\vc_redist.x64.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall skipifsourcedoesntexist
+Source: "_package\styles\*"; DestDir: "{app}\styles"; Flags: ignoreversion recursesubdirs
+Source: "_package\imageformats\*"; DestDir: "{app}\imageformats"; Flags: ignoreversion recursesubdirs
+Source: "_package\iconengines\*"; DestDir: "{app}\iconengines"; Flags: ignoreversion recursesubdirs
+Source: "_package\generic\*"; DestDir: "{app}\generic"; Flags: ignoreversion recursesubdirs
+Source: "_package\tls\*"; DestDir: "{app}\tls"; Flags: ignoreversion recursesubdirs
+Source: "_package\translations\*"; DestDir: "{app}\translations"; Flags: ignoreversion recursesubdirs
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
 Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
 Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
 
+[Registry]
+Root: HKCU; Subkey: "Environment"; ValueType: expandsz; ValueName: "Path"; ValueData: "{olddata};{app}"; Tasks: addtopath; Check: NeedsAddPath(ExpandConstant('{app}'))
+
 [Run]
-; Install VC++ redistributable silently if present
-Filename: "{tmp}\vc_redist.x64.exe"; Parameters: "/install /quiet /norestart"; StatusMsg: "Installing Visual C++ Runtime..."; Flags: waituntilterminated skipifdoesntexist
-; Launch after install
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
+
+[Code]
+function NeedsAddPath(Param: string): Boolean;
+var
+  OrigPath: string;
+begin
+  if not RegQueryStringValue(HKEY_CURRENT_USER, 'Environment', 'Path', OrigPath) then
+  begin
+    Result := True;
+    exit;
+  end;
+  Result := Pos(';' + Uppercase(Param) + ';', ';' + Uppercase(OrigPath) + ';') = 0;
+end;
