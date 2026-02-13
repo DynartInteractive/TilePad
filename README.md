@@ -49,19 +49,50 @@ Check the **Watch file** checkbox to automatically reprocess the tileset wheneve
 
 ### CLI usage
 
-TilePad can be used from the command line without the GUI. If any flags are passed, it runs in headless mode:
+TilePad can be used from the command line without the GUI. When any flags are passed, it runs in headless mode. Running without flags launches the GUI.
+
+**Add padding:**
 
 ```
-TilePad --input tileset.png --output padded.png --tile-width 16 --tile-height 16 --padding 2 --force-pot --transparent
+TilePad -i tileset.png -o padded.png --tile-width 16 --tile-height 16 -p 2 --transparent
 ```
 
-To remove padding:
+**Add padding with Force PoT and tile reordering:**
 
 ```
-TilePad --input padded.png --output original.png --tile-width 16 --tile-height 16 --padding 2 --remove
+TilePad -i tileset.png -o padded.png --tile-width 16 --tile-height 16 -p 2 --force-pot --reorder --transparent
 ```
 
-Run `TilePad --help` for a full list of options.
+**Add padding with custom background color:**
+
+```
+TilePad -i tileset.png -o padded.png --tile-width 32 --tile-height 32 -p 1 --bg-color FF00FF
+```
+
+**Remove padding:**
+
+```
+TilePad -i padded.png -o original.png --tile-width 16 --tile-height 16 -p 2 --remove
+```
+
+**CLI options:**
+
+| Option | Short | Description | Default |
+|--------|-------|-------------|---------|
+| `--input` | `-i` | Input image file path (required) | |
+| `--output` | `-o` | Output image file path (required) | |
+| `--tile-width` | | Tile width in pixels | 16 |
+| `--tile-height` | | Tile height in pixels | 16 |
+| `--padding` | `-p` | Padding in pixels | 1 |
+| `--force-pot` | | Force power of two output dimensions | off |
+| `--reorder` | | Reorder tiles (use with --force-pot) | off |
+| `--transparent` | | Use transparent padding | on |
+| `--bg-color` | | Background color hex (e.g. FF00FF) | FF00FF |
+| `--remove` | | Remove padding instead of adding | off |
+| `--help` | `-h` | Show help | |
+| `--version` | `-v` | Show version | |
+
+Supported image formats: PNG, JPG, JPEG.
 
 ### How to remove padding
 
